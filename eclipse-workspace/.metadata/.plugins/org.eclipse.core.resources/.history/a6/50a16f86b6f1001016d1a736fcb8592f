@@ -113,12 +113,22 @@ public class SampleJDBC {
         System.out.print("Enter Diagnosis: ");
         String diag = scanner.nextLine();
 
+        System.out.print("Enter Doctor's Last Name: ");
+        String docName = scanner.nextLine();
+        if (!docName.startsWith("Dr.")) {
+            docName = "Dr. " + docName;
+        }
+
+        System.out.print("Is this paid? (Yes/No): ");
+        String paidInput = scanner.nextLine();
+        String paidStatus = (paidInput.toLowerCase().startsWith("y")) ? "Yes" : "No";
+
         String insertSql = "INSERT INTO events (`Patient`, `Procedure`, `Date`, `Time`, `Doctor`, `Paid`) VALUES (?, ?, ?, ?, ?, ?)";
         
         try (PreparedStatement pstmt = conn.prepareStatement(insertSql)) {
             pstmt.setString(1, id);      // Value for `Patient` column
             pstmt.setString(2, name);
-            pstmt.setString(3, diag);
+            pstmt.setString(3, date);
             pstmt.setString(4, time);
             pstmt.setString(5, docName);
             pstmt.setString(6, paidStatus);

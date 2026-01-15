@@ -106,19 +106,49 @@ public class SampleJDBC {
             }
         }
 
-        // Gather remaining data
-        System.out.print("Enter Last Name and First Initial (Smith J.): ");
-        String name = scanner.nextLine();
+        // Validate Procedure type (Checking `procedures` table)
+        String procID = "";
+        boolean validProc = false;
+        while (!validProc) {
+            System.out.print("Enter Procedure type: ");
+            procID = scanner.nextLine();
 
-        System.out.print("Enter Diagnosis: ");
-        String diag = scanner.nextLine();
+            String checkProcSql = "SELECT `Procedure ID` FROM procedures WHERE `Procedure ID` = ?";
+            try (PreparedStatement checkStmt = conn.prepareStatement(checkProcSql)) {
+                checkStmt.setString(1, procID);
+                ResultSet rs = checkStmt.executeQuery();
+                if (rs.next()) {
+                    validProc = true;
+                    System.out.println("Procedure found.");
+                } else {
+                    System.out.println("Error: Procedure ID '" + procID + "' not found. Please try again.");
+                }
+            }
+        }
+
+        // Gather remaining data
+        System.out.print("Enter Date (DD/MM/YYYY): ");
+        String date = scanner.nextLine();
+
+        System.out.print("Enter Time (HH:MM): ");
+        String time = scanner.nextLine();
+
+        System.out.print("Enter Doctor's Last Name: ");
+        String docName = scanner.nextLine();
+        if (!docName.startsWith("Dr.")) {
+            docName = "Dr. " + docName;
+        }
+
+        System.out.print("Is this paid? (Yes/No): ");
+        String paidInput = scanner.nextLine();
+        String paidStatus = (paidInput.toLowerCase().startsWith("y")) ? "Yes" : "No";
 
         String insertSql = "INSERT INTO events (`Patient`, `Procedure`, `Date`, `Time`, `Doctor`, `Paid`) VALUES (?, ?, ?, ?, ?, ?)";
         
         try (PreparedStatement pstmt = conn.prepareStatement(insertSql)) {
-            pstmt.setString(1, id);      // Value for `Patient` column
-            pstmt.setString(2, name);
-            pstmt.setString(3, diag);
+            pstmt.setString(1, mrn);      // Value for `Patient` column
+            pstmt.setString(2, procID);   // Value for `Procedure` column
+            pstmt.setString(3, date);
             pstmt.setString(4, time);
             pstmt.setString(5, docName);
             pstmt.setString(6, paidStatus);
