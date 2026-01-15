@@ -1,0 +1,270 @@
+import java.sql.*;
+import java.util.Scanner;
+public class SemesterProject {
+public static void main(String[] Args){
+Scanner scan = new Scanner(System.in);
+Connection con = null;
+try {
+while (true) {
+System.out.println("\nMAIN MENU\nEnter a number:\n1 = Patients\n2 = Procedures\n3 = Patient History\n0 = Exit Program");
+int tableNumber = scan.nextInt();
+scan.nextLine();
+tables:
+while (true) {
+if (tableNumber == 3) { //patient_history table
+while (true) {
+System.out.println("\nPATIENT HISTORY\nEnter a number:\n1 = Add\n2 = Delete\n3 = Update\n4 = Display Table\n0 = Exit to Main Menu");
+con = DriverManager.getConnection("jdbc:mysql://localhost:3306/jachji?useSSL=false", "root", "Bostonm@n19");
+int input = scan.nextInt();
+if (input == 4) { //displays the patient_history table
+System.out.println();
+Class.forName("com.mysql.jdbc.Driver");
+Statement stmt = con.createStatement();
+ResultSet rs = stmt.executeQuery("select * from patient_history;");
+while (rs.next()) { //last_name_first_int, diagnoses, family_history, medications
+String strName = rs.getString(1);
+String strDiagnoses = rs.getString(2);
+String strFamily = rs.getString(3);
+String strMedications = rs.getString(4);
+String strLine = "Name: " + strName + ", Diagnoses: " + strDiagnoses + ", Family History: " + strFamily + ", Medications: " + strMedications;
+System.out.println(strLine);
+}
+}
+if (input == 1) { //ADD Statement for patient_history table
+scan.nextLine();
+System.out.println("\nEnter patient's last name and first name initial (format DOE J.): ");
+String lastNameFirstInt = scan.nextLine();
+System.out.println("Enter patient's diagnoses: ");
+String diagnoses = scan.nextLine();
+System.out.println("Enter patient's family history: ");
+String familyHistory = scan.nextLine();
+System.out.println("Enter patient's medications: ");
+String medications = scan.nextLine();
+String query = "INSERT INTO patient_history VALUES('" + lastNameFirstInt + "', '" + diagnoses +
+"', '" + familyHistory + "', '" + medications + "')";
+PreparedStatement p = null;
+p = con.prepareStatement(query);
+p.execute();
+}
+if (input == 2) { //DELETE statement for patient_history table
+scan.nextLine();
+System.out.println("\nEnter the patient's last name and first initial (format DOE J.): ");
+String lastNameFirstInt = scan.nextLine();
+String query = "DELETE FROM patient_history WHERE last_name_first_int = '" + lastNameFirstInt + "'";
+PreparedStatement p = null;
+p = con.prepareStatement(query);
+p.execute();
+}
+if (input == 3) { //UPDATE statement for patient_history table
+scan.nextLine();
+System.out.println("\nEnter the patient's last name and first initial whose information you want to update (format DOE J.): ");
+String name = scan.nextLine();
+System.out.println("Enter the updated diagnoses: ");
+String diagnoses = scan.nextLine();
+System.out.println("Enter the updated family history: ");
+String familyHistory = scan.nextLine();
+System.out.println("Enter the updated medications: ");
+String medications = scan.nextLine();
+String query = "UPDATE patient_history SET diagnoses = '" + diagnoses + "', family_history = '" + familyHistory +
+"', medications = '" + medications + "' WHERE last_name_first_int = '" + name + "'";
+PreparedStatement p = null;
+p = con.prepareStatement(query);
+p.execute();
+}
+if (input == 0) { //exit to main menu
+break tables;
+}
+if (input > 4 || input < 0)
+System.out.println("\nEntered number is not in the menu.");
+}
+}
+if (tableNumber == 2) { //procedures table
+while (true) {
+System.out.println("\nPROCEDURES\nEnter a number:\n1 = Add\n2 = Delete\n3 = Update\n4 = Display Table\n0 = Exit to Main Menu");
+con = DriverManager.getConnection("jdbc:mysql://localhost:3306/jachji?useSSL=false", "root", "Bostonm@n19");
+int input = scan.nextInt();
+if (input == 4) { //displays the procedures table
+System.out.println();
+Class.forName("com.mysql.jdbc.Driver");
+Statement stmt = con.createStatement();
+ResultSet rs = stmt.executeQuery("select * from procedures;");
+while (rs.next()) { //procedure_type, cost, procedure_length, recovery_time, description
+String strType = rs.getString(1);
+double dblCost = rs.getDouble(2);
+String strLength = rs.getString(3);
+String strRecovery = rs.getString(4);
+String strDesc = rs.getString(5);
+String strLine = "Procedure Type: " + strType + ", Cost: " + dblCost + ", Procedure Length: " + strLength +
+", Recovery Time: " + strRecovery + ", Description: " + strDesc;
+System.out.println(strLine);
+}
+}
+if (input == 1) { //ADD Statement for procedures table
+scan.nextLine();
+System.out.println("\nEnter the name of the procedure: ");
+String procName = scan.nextLine();
+System.out.println("Enter cost of the procedure: ");
+double cost = scan.nextDouble();
+scan.nextLine();
+System.out.println("Enter length of the procedure: ");
+String procLength = scan.nextLine();
+System.out.println("Enter recovery time for the procedure: ");
+String recovTime = scan.nextLine();
+System.out.println("Enter a description of the procedure: ");
+String desc = scan.nextLine();
+String query = "INSERT INTO procedures VALUES('" + procName + "', '" + cost +
+"', '" + procLength + "', '" + recovTime + "', '" + desc + "')";
+PreparedStatement p = null;
+p = con.prepareStatement(query);
+p.execute();
+}
+if (input == 2) { //DELETE statement for procedures table
+scan.nextLine();
+System.out.println("\nEnter the procedure's name: ");
+String procName = scan.nextLine();
+String query = "DELETE FROM procedures WHERE procedure_type = '" + procName + "'";
+PreparedStatement p = null;
+p = con.prepareStatement(query);
+p.execute();
+}
+if (input == 3) { //UPDATE statement for procedures table
+scan.nextLine();
+System.out.println("\nEnter the name of the procedure you wish to update: ");
+String name = scan.nextLine();
+System.out.println("Enter the updated cost: ");
+double cost = scan.nextDouble();
+scan.nextLine();
+System.out.println("Enter the updated procedure length: ");
+String procLength = scan.nextLine();
+System.out.println("Enter the updated recovery time: ");
+String recovTime = scan.nextLine();
+System.out.println("Enter the updated description of the procedure: ");
+String desc = scan.nextLine();
+String query = "UPDATE procedures SET cost = '" + cost + "', procedure_length = '" + procLength +
+"', recovery_time = '" + recovTime + "', description = '" + desc + "' WHERE procedure_type = '" + name + "'";
+PreparedStatement p = null;
+p = con.prepareStatement(query);
+p.execute();
+}
+if (input == 0) { //exit to main menu
+break tables;
+}
+if (input > 4 || input < 0)
+System.out.println("\nEntered number is not in the menu.");
+}
+}
+if (tableNumber == 1) {
+while (true) {
+System.out.println("\nPATIENTS\nEnter a number:\n1 = Add\n2 = Delete\n3 = Update\n4 = Display Table\n0 = Exit to Main Menu");
+con = DriverManager.getConnection("jdbc:mysql://localhost:3306/jachji?useSSL=false", "root", "Bostonm@n19");
+int input = scan.nextInt();
+if (input == 4) { //displays the patient table
+System.out.println();
+Class.forName("com.mysql.jdbc.Driver");
+Statement stmt = con.createStatement();
+ResultSet rs = stmt.executeQuery("select * from patient");
+while (rs.next()) { //patient_id, first_name, last_name, d_o_b, patient_sex, admission_date, discharge_date, physician_name, emergency_contact, insurance_type
+int numID = rs.getInt(1);
+String formattedID = String.format("%05d", numID);
+String strFirst = rs.getString(2);
+String strLast = rs.getString(3);
+String strDOB = rs.getString(4);
+String strSex = rs.getString(5);
+String strAdmit = rs.getString(6);
+String strDischarge = rs.getString(7);
+String strPysName = rs.getString(8);
+String strICE = rs.getString(9);
+String strInsurance = rs.getString(10);
+
+String strLine = "Patient ID: " + formattedID + ", First Name: " + strFirst + ", Last Name: " + strLast + ", Date of Birth: " + strDOB +
+", Patient Sex: " + strSex + ", Admission Date: " + strAdmit + ", Discharge Date: " + strDischarge + ", Physician Name: " +
+strPysName + ", Emergency Contact: " + strICE + ", Insurance Type: " + strInsurance;
+System.out.println(strLine);
+}
+}
+if (input == 1) { //ADD statement for patient table
+scan.nextLine();
+System.out.println("\nEnter the patient's ID number (format XXXXX): ");
+int patientID = scan.nextInt();
+scan.nextLine();
+System.out.println("Enter patient's first name: ");
+String firstName = scan.nextLine();
+System.out.println("Enter patient's last name: ");
+String lastName = scan.nextLine();
+System.out.println("Enter patient's date of birth (format MM/DD/YYYY): ");
+String dob = scan.nextLine();
+System.out.println("Enter the patient's sex (M,F,OTHER): ");
+String sex = scan.nextLine();
+System.out.println("Enter patient's admission date (format MM/DD/YYYY): ");
+String admit = scan.nextLine();
+System.out.println("Enter patient's discharge date (format MM/DD/YYYY): ");
+String discharge = scan.nextLine();
+System.out.println("Enter patient's physician's name: ");
+String physician = scan.nextLine();
+System.out.println("Enter patient's emergency contact's phone number (format XXX-XXX-XXXX): ");
+String ice = scan.nextLine();
+System.out.println("Enter patient's insurance: ");
+String insurance = scan.nextLine();
+String query = "INSERT INTO patient VALUES('" + patientID + "', '" + firstName +
+"', '" + lastName + "', '" + dob + "', '" + sex + "', '" + admit + "','" +
+discharge + "', '" + physician + "', '" + ice + "', '" + insurance + "')";
+PreparedStatement p = null;
+p = con.prepareStatement(query);
+p.execute();
+}
+if (input == 2) { //DELETE statement for patient table
+scan.nextLine();
+System.out.println("\nEnter the patient's ID Number (format XXXXX): ");
+int idNum = scan.nextInt();
+scan.nextLine();
+String query = "DELETE FROM patient WHERE patient_id = '" + idNum + "'";
+PreparedStatement p = null;
+p = con.prepareStatement(query);
+p.execute();
+}
+if (input == 3) { //UPDATE statement for patient table
+scan.nextLine();
+System.out.println("\nEnter the Patient ID of the patient you wish to update (format XXXXX): ");
+int idNum = scan.nextInt();
+scan.nextLine();
+System.out.println("Enter the updated discharge date (format MM/DD/YYYY): ");
+String discharge = scan.nextLine();
+System.out.println("Enter the updated physician's name: ");
+String physName = scan.nextLine();
+System.out.println("Enter the updated emergency contact's phone number (format XXX-XXX-XXXX): ");
+String ice = scan.nextLine();
+System.out.println("Enter the updated patient's insurance: ");
+String insurance = scan.nextLine();
+String query = "UPDATE patient SET discharge_date = '" + discharge + "', physician_name = '" + physName +
+"', emergency_contact = '" + ice + "', insurance_type = '" + insurance + "' WHERE patient_id = '" + idNum + "'";
+PreparedStatement p = null;
+p = con.prepareStatement(query);
+p.execute();
+}
+if (input == 0) { //exit to main menu
+break tables;
+}
+if (input > 4 || input < 0)
+System.out.println("\nEntered number is not in the menu.");
+}
+}
+if (tableNumber == 0)
+System.exit(0);
+System.out.println("\nEntered number is not in the menu.");
+break;
+}
+}
+}
+catch(Exception e){
+System.out.println(e);
+}
+finally{
+try {
+assert con != null;
+con.close();
+} catch (Exception Ex) {
+System.out.println(Ex);
+}
+}
+}
+}
