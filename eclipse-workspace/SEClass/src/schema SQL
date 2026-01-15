@@ -1,0 +1,27 @@
+SET NAMES utf8mb4;
+SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS = 0;
+SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS = 0;
+SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE = TRADITIONAL;
+
+DROP SCHEMA IF EXISTS jachji;
+CREATE SCHEMA jachji;
+USE jachji;
+
+--
+-- Table structure for table patient
+--
+
+CREATE TABLE patient (
+
+
+
+
+patient_sex VARCHAR(45) NOT NULL,
+admission_date VARCHAR(45) NOT NULL,
+discharge_date VARCHAR(45),
+physician_name VARCHAR(45) NOT NULL,
+emergency_contact VARCHAR(45) NOT NULL,
+insurance_type VARCHAR(45),
+PRIMARY KEY (patient_id),
+KEY idx_patient_last_name (last_name)
+)ENGINE InnoDB DEFAULT CHARSET=utf8mb4;
