@@ -26,15 +26,8 @@ public class SampleJDBC {
                 System.out.println("2. View Procedures"); 
                 System.out.println("3. View Patients"); 
                 System.out.println("4. Add New Patient"); 
-                System.out.println("5. Update Patient");
-                System.out.println("6. Delete Patient");
-                System.out.println("7. Add New Procedure");
-                System.out.println("8. Update Procedure");
-                System.out.println("9. Delete Procedure");
-                System.out.println("10. Add Patient Event");
-                System.out.println("11. Update Patient Event");
-                System.out.println("12. Delete Patient Event");
-                System.out.println("13. Exit");
+                System.out.println("5. Add Patient Event");
+                System.out.println("6. Exit");
                 System.out.print("Enter choice: ");
                 
                 int choice = 0;
@@ -60,6 +53,7 @@ public class SampleJDBC {
                     case 4:
                         addNewPatient(connection, scanner);
                         break;
+                    // *** NEW CASE ***
                     case 5:
                         addPatientEvent(connection, scanner);
                         break;
