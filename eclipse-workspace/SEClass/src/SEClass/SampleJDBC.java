@@ -112,16 +112,21 @@ public class SampleJDBC {
 
         System.out.print("Enter Diagnosis: ");
         String diag = scanner.nextLine();
+        
+        System.out.print("Enter Family Diagnoses: ");
+        String fam = scanner.nextLine();
+        
+        System.out.print("Enter Previous Medications: ");
+        String meds = scanner.nextLine();
 
-        String insertSql = "INSERT INTO events (`Patient`, `Procedure`, `Date`, `Time`, `Doctor`, `Paid`) VALUES (?, ?, ?, ?, ?, ?)";
+        String insertSql = "INSERT INTO 'p. history' (`Patient ID`, `Last Name First Initial`, `Diagnosis`, `Family diagnoses`, `Previous Medications`) VALUES (?, ?, ?, ?, ?)";
         
         try (PreparedStatement pstmt = conn.prepareStatement(insertSql)) {
             pstmt.setString(1, id);      // Value for `Patient` column
             pstmt.setString(2, name);
             pstmt.setString(3, diag);
-            pstmt.setString(4, time);
-            pstmt.setString(5, docName);
-            pstmt.setString(6, paidStatus);
+            pstmt.setString(4, fam);
+            pstmt.setString(5, meds);
 
             int rows = pstmt.executeUpdate();
             if (rows > 0) {
@@ -133,52 +138,49 @@ public class SampleJDBC {
     public static void addNewPatient(Connection conn, Scanner scanner) throws SQLException {
         System.out.println("\n--- Adding New Patient ---");
         
+        System.out.print("Patient ID: ");
+        String id = scanner.nextLine();
+        
         System.out.print("First Name: ");
         String fName = scanner.nextLine();
+        
         System.out.print("Last Name: ");
         String lName = scanner.nextLine();
-        System.out.print("Pronouns (e.g. He/Him): ");
-        String pronouns = scanner.nextLine();
-        System.out.print("Date of Birth (DD/MM/YYYY): ");
+        
+        System.out.print("Date of Birth (YYYY-MM-DD): ");
         String dob = scanner.nextLine();
-        System.out.print("Address: ");
-        String address = scanner.nextLine();
-        System.out.print("City: ");
-        String city = scanner.nextLine();
-        System.out.print("State: ");
-        String state = scanner.nextLine();
-        System.out.print("Zip: ");
-        String zip = scanner.nextLine();
-        System.out.print("Insurance Provider: ");
-        String insProvider = scanner.nextLine();
-        System.out.print("Insurance ID: ");
-        String insID = scanner.nextLine();
+        
         System.out.print("Sex: ");
         String sex = scanner.nextLine();
-        System.out.print("Gender: ");
-        String gender = scanner.nextLine();
-        System.out.print("Doctor Name: ");
-        String doctor = scanner.nextLine();
-        System.out.print("MRN (Medical Record Number): ");
-        String mrn = scanner.nextLine();
+        
+        System.out.print("Admitted (YYYY-MM-DD): ");
+        String admit = scanner.nextLine();
+        
+        System.out.print("Discharged (YYYY-MM-DD): ");
+        String discharge = scanner.nextLine();
+        
+        System.out.print("Physician Assistant (J. SMITH): ");
+        String doc = scanner.nextLine();
+        
+        System.out.print("Emergency Contact (Phone Number): ");
+        String contact = scanner.nextLine();
+        
+        System.out.print("Insurance Provider: ");
+        String insurance = scanner.nextLine();
 
-        String sql = "INSERT INTO patients (`Last Name`, `First Name`, `Pronoun`, `DOB`, `Address`, `City`, `State`, `Zip`, `Insurance provider`, `Insurance ID`, `Sex`, `Gender`, `Doctor`, `MRN`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO patients (`Patient ID`, `First Name`, `Last Name`, `DOB`, `Patient Sex`, `Admitted`, `Discharged`, `Physician Assistant`, `Emergency Contact Phone`, `Insurance`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, lName);
+            pstmt.setString(1, id);
             pstmt.setString(2, fName);
-            pstmt.setString(3, pronouns);
+            pstmt.setString(3, lName);
             pstmt.setString(4, dob);
-            pstmt.setString(5, address);
-            pstmt.setString(6, city);
-            pstmt.setString(7, state);
-            pstmt.setString(8, zip);
-            pstmt.setString(9, insProvider);
-            pstmt.setString(10, insID);
-            pstmt.setString(11, sex);
-            pstmt.setString(12, gender);
-            pstmt.setString(13, doctor);
-            pstmt.setString(14, mrn);
+            pstmt.setString(5, sex);
+            pstmt.setString(6, admit);
+            pstmt.setString(7, discharge);
+            pstmt.setString(8, doc);
+            pstmt.setString(9, contact);
+            pstmt.setString(10, insurance);
             
             int rowsInserted = pstmt.executeUpdate();
             if (rowsInserted > 0) {
@@ -227,7 +229,7 @@ public class SampleJDBC {
     
     public static void format_and_print_entry(String table_name, String[] entries) {
 	    	if (table_name == "patients") {
-	        	//Last Name	First Name	Pronoun	DOB	Address	City	State	Zip	
+	        	//Id First Name
 	        	//Insurance provider	Insurance ID	Sex	Gender	Doctor	MRN
 	    		String patient_name_and_pronouns = entries[1] + " " + entries[0] + " (" + entries[2] + ")";
 	    		System.out.println(patient_name_and_pronouns);
