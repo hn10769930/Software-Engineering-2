@@ -60,10 +60,13 @@ public class SampleJDBC {
                     case 4:
                         addNewPatient(connection, scanner);
                         break;
-                    case 5:
+                    case 7:
+                        addNewProcedure(connection, scanner);
+                        break;
+                    case 10:
                         addPatientEvent(connection, scanner);
                         break;
-                    case 6:
+                    case 13:
                         System.out.println("Exiting...");
                         return; // Exits the main method
                     default: 
@@ -139,6 +142,27 @@ public class SampleJDBC {
                 System.out.println("Event recorded successfully!");
             }
         }
+    }
+    
+    public static void addNewProcedure(Connection conn, Scanner scanner) throws SQLException {
+    		System.out.println("\n--- Adding New Procedure ---");
+    		
+    		System.out.print("Procedure Type: ");
+        String id = scanner.nextLine();
+        
+        System.out.print("Cost: ");
+        String cost = scanner.nextLine();
+        
+        System.out.print("Procedure Length: ");
+        String length = scanner.nextLine();
+        
+        System.out.print("Recovery Time: ");
+        String recovery = scanner.nextLine();
+        
+        System.out.print("Description: ");
+        String descript = scanner.nextLine();
+        
+        String sql = "INSERT INTO procedures (`Procedure type`, `Cost`, `Procedure length`, `Description`) VALUES (?, ?, ?, ?)";
     }
 
     public static void addNewPatient(Connection conn, Scanner scanner) throws SQLException {
