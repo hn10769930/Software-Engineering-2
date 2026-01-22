@@ -273,7 +273,7 @@ public class SampleJDBC {
 	    		System.out.println(entries[0] + "\n\tCost: " + entries[1]);
 	    		System.out.println("Estimated Procedure Length: " + entries[2]);
 	    		System.out.println("Recovery Time: " + entries[3]);
-	    		System.out.println("Desscription: " + entries[4]);
+	    		System.out.println("\n\tDescription: " + entries[4]);
 	    	}
 	    	if (table_name == "p. history") {
 	    		System.out.println("Patient ID: " + entries[0]);
