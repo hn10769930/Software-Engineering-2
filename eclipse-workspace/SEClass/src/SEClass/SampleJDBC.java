@@ -162,7 +162,20 @@ public class SampleJDBC {
         System.out.print("Description: ");
         String descript = scanner.nextLine();
         
-        String sql = "INSERT INTO procedures (`Procedure type`, `Cost`, `Procedure length`, `Description`) VALUES (?, ?, ?, ?)";
+        String insertSql = "INSERT INTO procedures (`Procedure type`, `Cost`, `Procedure length`, `Description`) VALUES (?, ?, ?, ?)";
+        
+        try (PreparedStatement pstmt = conn.prepareStatement(insertSql)) {
+            pstmt.setString(1, id);      // Value for `Patient` column
+            pstmt.setString(2, cost);
+            pstmt.setString(3, length);
+            pstmt.setString(4, recovery);
+            pstmt.setString(5, descript);
+
+            int rows = pstmt.executeUpdate();
+            if (rows > 0) {
+                System.out.println("Event recorded successfully!");
+            }
+        }
     }
 
     public static void addNewPatient(Connection conn, Scanner scanner) throws SQLException {
