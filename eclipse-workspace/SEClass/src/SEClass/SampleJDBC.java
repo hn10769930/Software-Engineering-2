@@ -8,7 +8,7 @@ public class SampleJDBC {
         // Database connection details
         String url = "jdbc:mysql://localhost:3306/school";
         String user = "root";
-        String password = "password";
+        String password = "521Annadale!";
         String driverClass = "com.mysql.cj.jdbc.Driver"; 
 
         Connection connection = null;
@@ -24,7 +24,7 @@ public class SampleJDBC {
                 System.out.println("\n--- Main Menu ---");
                 System.out.println("1. View Patients");
                 System.out.println("2. View Procedures"); 
-                System.out.println("3. View Patients"); 
+                System.out.println("3. View Patient Events"); 
                 System.out.println("4. Add New Patient"); 
                 System.out.println("5. Update Patient");
                 System.out.println("6. Delete Patient");
