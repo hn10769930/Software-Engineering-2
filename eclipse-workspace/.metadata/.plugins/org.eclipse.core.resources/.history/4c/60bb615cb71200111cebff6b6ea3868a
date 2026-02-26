@@ -8,7 +8,7 @@ public class SampleJDBC {
         // Database connection details
         String url = "jdbc:mysql://localhost:3306/school";
         String user = "root";
-        String password = "password";
+        String password = "521Annadale!";
         String driverClass = "com.mysql.cj.jdbc.Driver"; 
 
         Connection connection = null;

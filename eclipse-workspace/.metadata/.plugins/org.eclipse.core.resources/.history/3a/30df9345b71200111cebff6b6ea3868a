@@ -8,7 +8,7 @@ public class SampleJDBC {
         // Database connection details
         String url = "jdbc:mysql://localhost:3306/school";
         String user = "root";
-        String password = "password";
+        String password = "521Annadale!";
         String driverClass = "com.mysql.cj.jdbc.Driver"; 
 
         Connection connection = null;
@@ -55,7 +55,7 @@ public class SampleJDBC {
                         viewTable(connection, "procedures");
                         break;  
                     case 3: 
-                        viewTable(connection, "phistory");
+                        viewTable(connection, "p.history");
                         break; 
                     case 4:
                         addNewPatient(connection, scanner);
@@ -288,7 +288,7 @@ public class SampleJDBC {
 	    		System.out.println("Recovery Time: " + entries[3]);
 	    		System.out.println("\n\tDescription: " + entries[4]);
 	    	}
-	    	if (table_name == "phistory") {
+	    	if (table_name == "p.history") {
 	    		System.out.println("Patient ID: " + entries[0]);
 	    		System.out.println("Name: " + entries[1]);
 	    		System.out.println("Diagnosis: " + entries[2]);
