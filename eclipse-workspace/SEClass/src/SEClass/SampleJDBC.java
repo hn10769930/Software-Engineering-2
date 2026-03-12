@@ -95,16 +95,16 @@ public class SampleJDBC {
         System.out.println("\n--- Record a Patient Event ---");
 
         // Validate Patient ID (Checking 'Patient ID' column in patients table)
-        String id = "";
+        int id = 0;
         boolean validID = false;
         while (!validID) {
             System.out.print("Enter Patient ID: ");
-            id = scanner.nextLine();
+            id = scanner.nextInt();
             
             // Querying the `patients` table for ID existence
             String checkPatientSql = "SELECT 'Patient ID' FROM patients WHERE 'Patient ID' = ?";
             try (PreparedStatement checkStmt = conn.prepareStatement(checkPatientSql)) {
-                checkStmt.setString(1, id);
+                checkStmt.setString(1, Integer.toString(id));
                 ResultSet rs = checkStmt.executeQuery();
                 if (rs.next()) {
                     validID = true;
@@ -131,7 +131,7 @@ public class SampleJDBC {
         String insertSql = "INSERT INTO 'p. history' (`Patient ID`, `Last Name First Initial`, `Diagnosis`, `Family diagnoses`, `Previous Medications`) VALUES (?, ?, ?, ?, ?)";
         
         try (PreparedStatement pstmt = conn.prepareStatement(insertSql)) {
-            pstmt.setString(1, id);      // Value for `Patient` column
+            pstmt.setString(1, Integer.toString(id));      // Value for `Patient` column
             pstmt.setString(2, name);
             pstmt.setString(3, diag);
             pstmt.setString(4, fam);
@@ -151,7 +151,7 @@ public class SampleJDBC {
         String id = scanner.nextLine();
         
         System.out.print("Cost: ");
-        String cost = scanner.nextLine();
+        int cost = scanner.nextInt();
         
         System.out.print("Procedure Length: ");
         String length = scanner.nextLine();
@@ -162,11 +162,11 @@ public class SampleJDBC {
         System.out.print("Description: ");
         String descript = scanner.nextLine();
         
-        String insertSql = "INSERT INTO procedures (`Procedure type`, `Cost`, `Procedure length`, `Description`) VALUES (?, ?, ?, ?)";
+        String insertSql = "INSERT INTO procedures (`Procedure type`, `Cost`, `Procedure length`, 'Recovery time', `Description`) VALUES (?, ?, ?, ?, ?)";
         
         try (PreparedStatement pstmt = conn.prepareStatement(insertSql)) {
             pstmt.setString(1, id);      // Value for `Patient` column
-            pstmt.setString(2, cost);
+            pstmt.setString(2, Integer.toString(cost));
             pstmt.setString(3, length);
             pstmt.setString(4, recovery);
             pstmt.setString(5, descript);
@@ -182,7 +182,7 @@ public class SampleJDBC {
         System.out.println("\n--- Adding New Patient ---");
         
         System.out.print("Patient ID: ");
-        String id = scanner.nextLine();
+        int id = scanner.nextInt();
         
         System.out.print("First Name: ");
         String fName = scanner.nextLine();
@@ -214,7 +214,7 @@ public class SampleJDBC {
         String sql = "INSERT INTO patients (`Patient ID`, `First Name`, `Last Name`, `DOB`, `Patient Sex`, `Admitted`, `Discharged`, `Physician Assistant`, `Emergency Contact Phone`, `Insurance`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, id);
+            pstmt.setString(1, Integer.toString(id));
             pstmt.setString(2, fName);
             pstmt.setString(3, lName);
             pstmt.setString(4, dob);
