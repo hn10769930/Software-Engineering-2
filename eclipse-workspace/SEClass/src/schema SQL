@@ -1,27 +1,53 @@
+-- constraints
 SET NAMES utf8mb4;
 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS = 0;
 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS = 0;
-SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE = TRADITIONAL;
+SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE = 'TRADITIONAL';
 
+-- making schema, which is like the 'folder' or 'directory'
 DROP SCHEMA IF EXISTS jachji;
 CREATE SCHEMA jachji;
 USE jachji;
 
---
--- Table structure for table patient
---
+CREATE TABLE `patient` (
+  `Patient ID` int DEFAULT NULL PRIMARY KEY,
+  `First Name` text,
+  `Last Name` text,
+  `DOB` text,
+  `Patient Sex` text,
+  `Height` int DEFAULT NULL,
+  `Blood Type` text,
+  `Emergency Contact Relation` text,
+  `Emergency Contact Phone` text,
+  `Insurance` text
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-CREATE TABLE patient (
+CREATE TABLE `patient_history` (
+  `Patient ID` int DEFAULT NULL,
+  `Last Name First Initial` text,
+  `Diagnosis` text,
+  `Family diagnoses` text,
+  `Previous Medications` text,
+  `Admitted` text,
+  `Discharged` text,
+  `Physician Assistant` text,
+  `Procedure ID` int DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+CREATE TABLE `procedures` (
+  `Procedure ID` int DEFAULT NULL PRIMARY KEY,
+  `Procedure type` text,
+  `Cost` int DEFAULT NULL,
+  `Procedure length` text,
+  `Recovery time` text,
+  `Description` text
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-
-
-patient_sex VARCHAR(45) NOT NULL,
-admission_date VARCHAR(45) NOT NULL,
-discharge_date VARCHAR(45),
-physician_name VARCHAR(45) NOT NULL,
-emergency_contact VARCHAR(45) NOT NULL,
-insurance_type VARCHAR(45),
-PRIMARY KEY (patient_id),
-KEY idx_patient_last_name (last_name)
-)ENGINE InnoDB DEFAULT CHARSET=utf8mb4;
+alter table patient_history
+ADD CONSTRAINT foreign_procedure  -- foreign key constraints
+FOREIGN KEY (`Procedure ID`)
+REFERENCES procedures(`Procedure ID`);
+alter table patient_history
+ADD CONSTRAINT foreign_patient
+FOREIGN KEY (`Patient ID`)
+REFERENCES patient(`Patient ID`);
