@@ -1,0 +1,373 @@
+package SEClass;
+
+import java.sql.*;
+import java.util.Scanner;
+
+public class SampleJDBC {
+    public static void main(String[] args) {
+        // Database connection details
+        String url = "jdbc:mysql://localhost:3306/school";
+        String user = "root";
+        String password = "password";
+        String driverClass = "com.mysql.cj.jdbc.Driver"; 
+
+        Connection connection = null;
+        Statement statement = null;
+        ResultSet resultSet = null;
+        Scanner scanner = new Scanner(System.in);
+
+        try {
+            Class.forName(driverClass);
+            connection = DriverManager.getConnection(url, user, password);
+
+            while(true) { // Added a loop so the program doesn't exit after one action
+                System.out.println("\n--- Main Menu ---");
+                System.out.println("1. View Patients");
+                System.out.println("2. View Procedures"); 
+                System.out.println("3. View Patient Events"); 
+                System.out.println("4. Add New Patient"); 
+                System.out.println("5. Update Patient");
+                System.out.println("6. Delete Patient");
+                System.out.println("7. Add New Procedure");
+                System.out.println("8. Update Procedure");
+                System.out.println("9. Delete Procedure");
+                System.out.println("10. Add Patient Event");
+                System.out.println("11. Update Patient Event");
+                System.out.println("12. Delete Patient Event");
+                System.out.println("13. Exit");
+                System.out.print("Enter choice: ");
+                
+                int choice = 0;
+                try {
+                    choice = Integer.parseInt(scanner.nextLine());
+                } catch (NumberFormatException e) {
+                    System.out.println("Please enter a valid number.");
+                    continue;
+                }
+
+                String tableName = "";
+
+                switch (choice) {
+                    case 1: 
+                        viewTable(connection, "patients");
+                        break;
+                    case 2: 
+                        viewTable(connection, "procedures");
+                        break;  
+                    case 3: 
+                        viewTable(connection, "phistory");
+                        break; 
+                    case 4:
+                        addNewPatient(connection, scanner);
+                        break;
+                    case 7:
+                        addNewProcedure(connection, scanner);
+                        break;
+                    case 10:
+                        addPatientEvent(connection, scanner);
+                        break;
+                    case 13:
+                        System.out.println("Exiting...");
+                        return; // Exits the main method
+                    default: 
+                        System.out.println("Invalid selection.");
+                }
+            }
+
+        } catch (ClassNotFoundException e) {
+            System.err.println("Error loading the JDBC driver: " + e.getMessage());
+        } catch (SQLException e) {
+            System.err.println("Database error: " + e.getMessage());
+        } finally {
+            try {
+                if (resultSet != null) resultSet.close();
+                if (statement != null) statement.close();
+                if (connection != null) connection.close();
+                if (scanner != null) scanner.close();
+                System.out.println("\nConnection closed.");
+            } catch (SQLException e) {
+                System.err.println("Error closing resources: " + e.getMessage());
+            }
+        }
+    }
+    
+    public static void addPatientEvent(Connection conn, Scanner scanner) throws SQLException {
+        System.out.println("\n--- Record a Patient Event ---");
+
+        // Validate Patient ID (Checking 'Patient ID' column in patients table)
+        int patientId = 0;
+        boolean validID = false;
+        while (!validID) {
+            System.out.print("Enter Patient ID: ");
+            patientId = scanner.nextInt();
+            scanner.nextLine(); //buffer flush 
+            
+            // Querying the `patients` table for ID existence
+            String checkPatientSql = "SELECT 'Patient ID' FROM patients WHERE 'Patient ID' = ?";
+            try (PreparedStatement checkStmt = conn.prepareStatement(checkPatientSql)) {
+                checkStmt.setString(1, Integer.toString(patientId));
+                ResultSet rs = checkStmt.executeQuery();
+                if (rs.next()) {
+                    validID = true;
+                    System.out.println("Patient found.");
+                } else {
+                    System.out.println("Error: ID '" + patientId + "' not found in patients table. Please try again.");
+                }
+            }
+        }
+     // Validate Procedure ID (Checking 'Patient ID' column in patients table)
+        int procedureId = 0;
+        boolean validID2 = false;
+        while (!validID2) {
+            System.out.print("Enter Procedure ID: ");
+            procedureId = scanner.nextInt();
+            scanner.nextLine();
+            
+            // Querying the `patients` table for ID existence
+            String checkProcedureSql = "SELECT 'Procedure ID' FROM procedures WHERE 'Procedure ID' = ?";
+            try (PreparedStatement checkStmt = conn.prepareStatement(checkProcedureSql)) {
+                checkStmt.setString(1, Integer.toString(procedureId));
+                ResultSet rs = checkStmt.executeQuery();
+                if (rs.next()) {
+                    validID2 = true;
+                    System.out.println("Procedure found.");
+                } else {
+                    System.out.println("Error: ID '" + procedureId + "' not found in patients table. Please try again.");
+                }
+            }
+        }
+
+        // Gather remaining data
+        System.out.print("Enter Last Name and First Initial (Smith J.): ");
+        String name = scanner.nextLine();
+
+        System.out.print("Enter Diagnosis: ");
+        String diag = scanner.nextLine();
+        
+        System.out.print("Enter Family Diagnoses: ");
+        String fam = scanner.nextLine();
+        
+        System.out.print("Enter Previous Medications: ");
+        String meds = scanner.nextLine();
+        
+        System.out.print("Admitted (MM/DD/YYYY): ");
+        String admit = scanner.nextLine();
+        
+        System.out.print("Discharged (MM/DD/YYYY): ");
+        String discharge = scanner.nextLine();
+        
+        System.out.print("Physician Assistant ( DR. J. SMITH): ");
+        String doc = scanner.nextLine();
+
+        String insertSql = "INSERT INTO 'phistory' (`Patient ID`, `Last Name First Initial`, `Diagnosis`, `Family diagnoses`, `Previous Medications`, 'Admitted', 'Discharged', 'Physician Assistant', 'Procedure ID') VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        
+        try (PreparedStatement pstmt = conn.prepareStatement(insertSql)) {
+            pstmt.setString(1, Integer.toString(patientId));      // Value for `Patient` column
+            pstmt.setString(2, name);
+            pstmt.setString(3, diag);
+            pstmt.setString(4, fam);
+            pstmt.setString(5, meds);
+            pstmt.setString(6, admit);
+            pstmt.setString(7, discharge);
+            pstmt.setString(8, doc);
+            pstmt.setString(9, Integer.toString(procedureId));)
+
+            int rows = pstmt.executeUpdate();
+            if (rows > 0) {
+                System.out.println("Event recorded successfully!");
+            }
+        }
+    }
+    
+    public static void addNewProcedure(Connection conn, Scanner scanner) throws SQLException {
+        System.out.println("\n--- Adding New Procedure ---");
+        
+        int procedureId = 0;
+        boolean unique = false;
+        while (!unique) {
+            System.out.print("Enter Procedure ID: ");
+            procedureId = scanner.nextInt();
+            scanner.nextLine(); //Buffer flush
+            
+            String checkProcedureSql = "SELECT `Procedure ID` FROM procedures WHERE `Procedure ID` = ?";
+            try (PreparedStatement checkStmt = conn.prepareStatement(checkProcedureSql)) {
+                checkStmt.setInt(1, procedureId);
+                ResultSet rs = checkStmt.executeQuery();
+                if (rs.next()) {
+                    System.out.println("Procedure ID already exists. Try again.");
+                } else {
+                    unique = true;
+                }
+            }
+        }
+    		
+    		System.out.print("Procedure Type: ");
+        String type = scanner.nextLine();
+        
+        System.out.print("Cost: ");
+        int cost = scanner.nextInt();
+        scanner.nextLine();
+        
+        System.out.print("Procedure Length: ");
+        String length = scanner.nextLine();
+        
+        System.out.print("Recovery Time: ");
+        String recovery = scanner.nextLine();
+        
+        System.out.print("Description: ");
+        String descript = scanner.nextLine();
+        
+        String insertSql = "INSERT INTO procedures ('Procedure ID', `Procedure type`, `Cost`, `Procedure length`, 'Recovery time', `Description`) VALUES (?, ?, ?, ?, ?, ?)";
+        
+        try (PreparedStatement pstmt = conn.prepareStatement(insertSql)) {
+        	    pstmt.setString(1, Integer.toString(procedureId));
+            pstmt.setString(2, type); 
+            pstmt.setString(3, Integer.toString(cost));
+            pstmt.setString(4, length);
+            pstmt.setString(5, recovery);
+            pstmt.setString(6, descript);
+
+            int rows = pstmt.executeUpdate();
+            if (rows > 0) {
+                System.out.println("Event recorded successfully!");
+            }
+        }
+    }
+
+    public static void addNewPatient(Connection conn, Scanner scanner) throws SQLException {
+        System.out.println("\n--- Adding New Patient ---");
+        
+        int patientId = 0;
+        boolean validID = false;
+        while (!validID) {
+            System.out.print("Enter Patient ID: ");
+            patientId = scanner.nextInt();
+            scanner.nextLine();
+            
+            String checkPatientSql = "SELECT `Patient ID` FROM patients WHERE `Patient ID` = ?";
+            try (PreparedStatement checkStmt = conn.prepareStatement(checkPatientSql)) {
+                checkStmt.setInt(1, patientId);
+                ResultSet rs = checkStmt.executeQuery();
+                if (rs.next()) {
+                    System.out.println("Error: Patient ID already exists. Try a different one.");
+                } else {
+                    validID = true;
+                    System.out.println("Patient ID available.");
+                }
+            }
+        }
+
+        System.out.print("First Name: ");
+        String fName = scanner.nextLine();
+        
+        System.out.print("Last Name: ");
+        String lName = scanner.nextLine();
+        
+        System.out.print("Date of Birth (YYYY-MM-DD): ");
+        String dob = scanner.nextLine();
+        
+        System.out.print("Sex: ");
+        String sex = scanner.nextLine();
+        
+        System.out.print("Height in Inches: ");
+        int h = scanner.nextInt();
+        scanner.nextLine();
+        
+        System.out.print("Blood Type: ");
+        String blood = scanner.nextLine();
+        
+        System.out.print("Emergency Contact (Relation to Patient): ");
+        String contact = scanner.nextLine();
+        
+        System.out.print("Emergency Contact (Phone Number): ");
+        String phone = scanner.nextLine();
+        
+        System.out.print("Insurance Provider: ");
+        String insurance = scanner.nextLine();
+
+        String sql = "INSERT INTO patients (`Patient ID`, `First Name`, `Last Name`, `DOB`, `Patient Sex`, 'Height', 'Blood Type', 'Emergency Contact', `Emergency Contact Phone`, `Insurance`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, Integer.toString(patientId));
+            pstmt.setString(2, fName);
+            pstmt.setString(3, lName);
+            pstmt.setString(4, dob);
+            pstmt.setString(5, sex);
+            pstmt.setString(6, Integer.toString(h));
+            pstmt.setString(7, blood);
+            pstmt.setString(8, contact);
+            pstmt.setString(9, phone);
+            pstmt.setString(10, insurance);
+            
+            int rowsInserted = pstmt.executeUpdate();
+            if (rowsInserted > 0) {
+                System.out.println("A new patient was inserted successfully!");
+            }
+        }
+    }
+
+    public static void viewTable(Connection connection, String tableName) throws SQLException {
+        String query = "SELECT * FROM " + tableName;
+        System.out.println("Querying table: " + tableName + "\n");
+
+        Statement statement = connection.createStatement();
+        ResultSet resultSet = statement.executeQuery(query);
+        
+        ResultSetMetaData metaData = resultSet.getMetaData();
+        int columnCount = metaData.getColumnCount();
+        
+        for (int i = 1; i <= columnCount; i++) {
+            System.out.print(metaData.getColumnName(i) + "\t");
+        }
+        System.out.println();
+        
+        while (resultSet.next()) {
+            String[] patient_info = sql_entry_to_string_array(resultSet);
+            format_and_print_entry(tableName, patient_info);
+            System.out.println();
+        }
+    }
+    
+    public static String[] sql_entry_to_string_array(ResultSet sql_entries) {
+        try {
+            ResultSetMetaData metaData = sql_entries.getMetaData();
+            int columnCount = metaData.getColumnCount();
+            String[] entries = new String[columnCount];
+            for (int i = 1; i <= columnCount; i++) {
+                entries[i-1]= sql_entries.getString(i);
+            }
+            return entries;
+        }
+        catch(SQLException e) {
+            System.err.println("Database error: " + e.getMessage());
+            return null;
+        }
+    }
+    
+    public static void format_and_print_entry(String table_name, String[] entries) {
+	    	if (table_name == "patients") { 
+	    		System.out.println("Patient ID: " + entries[0]);
+	    		System.out.println("Name: " + entries[1] + " " + entries[2]);
+	    		System.out.println("DOB: " + entries[3]);
+	    		System.out.println("Sex: " + entries[4]);
+	    		System.out.println("Admitted at " + entries[5]);
+	    		System.out.println("Discharged at " + entries[6]);
+	    		System.out.println("Physisian Assistant: " + entries[7]);
+	    		System.out.println("Emergency Contact: " + entries[8]);
+	    		System.out.println("Insurance: " + entries[9]);
+	    	}
+	    	if (table_name == "procedures") {
+	    		System.out.println(entries[0] + "\n\tCost: " + entries[1]);
+	    		System.out.println("Estimated Procedure Length: " + entries[2]);
+	    		System.out.println("Recovery Time: " + entries[3]);
+	    		System.out.println("\n\tDescription: " + entries[4]);
+	    	}
+	    	if (table_name == "phistory") {
+	    		System.out.println("Patient ID: " + entries[0]);
+	    		System.out.println("Name: " + entries[1]);
+	    		System.out.println("Diagnosis: " + entries[2]);
+	    		System.out.println("Family Diagnoses: " + entries[3]);
+	    		System.out.println("Previous Medications: " + entries[4]);
+	    	}
+	}
+}

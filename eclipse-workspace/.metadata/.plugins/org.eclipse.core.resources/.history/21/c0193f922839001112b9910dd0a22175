@@ -8,7 +8,7 @@ public class SampleJDBC {
         // Database connection details
         String url = "jdbc:mysql://localhost:3306/school";
         String user = "root";
-        String password = "521Annadale!";
+        String password = "password";
         String driverClass = "com.mysql.cj.jdbc.Driver"; 
 
         Connection connection = null;
@@ -95,22 +95,44 @@ public class SampleJDBC {
         System.out.println("\n--- Record a Patient Event ---");
 
         // Validate Patient ID (Checking 'Patient ID' column in patients table)
-        String id = "";
+        int patientId = 0;
         boolean validID = false;
         while (!validID) {
             System.out.print("Enter Patient ID: ");
-            id = scanner.nextLine();
+            patientId = scanner.nextInt();
+            scanner.nextLine(); //buffer flush 
             
             // Querying the `patients` table for ID existence
             String checkPatientSql = "SELECT 'Patient ID' FROM patients WHERE 'Patient ID' = ?";
             try (PreparedStatement checkStmt = conn.prepareStatement(checkPatientSql)) {
-                checkStmt.setString(1, id);
+                checkStmt.setString(1, Integer.toString(patientId));
                 ResultSet rs = checkStmt.executeQuery();
                 if (rs.next()) {
                     validID = true;
                     System.out.println("Patient found.");
                 } else {
-                    System.out.println("Error: ID '" + id + "' not found in patients table. Please try again.");
+                    System.out.println("Error: ID '" + patientId + "' not found in patients table. Please try again.");
+                }
+            }
+        }
+     // Validate Procedure ID (Checking 'Patient ID' column in patients table)
+        int procedureId = 0;
+        boolean validID2 = false;
+        while (!validID2) {
+            System.out.print("Enter Procedure ID: ");
+            procedureId = scanner.nextInt();
+            scanner.nextLine(); //buffer flush 
+            
+            // Querying the `patients` table for ID existence
+            String checkProcedureSql = "SELECT 'Procedure ID' FROM procedures WHERE 'Procedure ID' = ?";
+            try (PreparedStatement checkStmt = conn.prepareStatement(checkProcedureSql)) {
+                checkStmt.setString(1, Integer.toString(procedureId));
+                ResultSet rs = checkStmt.executeQuery();
+                if (rs.next()) {
+                    validID2 = true;
+                    System.out.println("Procedure found.");
+                } else {
+                    System.out.println("Error: ID '" + procedureId + "' not found in patients table. Please try again.");
                 }
             }
         }
@@ -127,15 +149,28 @@ public class SampleJDBC {
         
         System.out.print("Enter Previous Medications: ");
         String meds = scanner.nextLine();
+        
+        System.out.print("Admitted (MM/DD/YYYY): ");
+        String admit = scanner.nextLine();
+        
+        System.out.print("Discharged (MM/DD/YYYY): ");
+        String discharge = scanner.nextLine();
+        
+        System.out.print("Physician Assistant ( DR. J. SMITH): ");
+        String doc = scanner.nextLine();
 
-        String insertSql = "INSERT INTO 'p. history' (`Patient ID`, `Last Name First Initial`, `Diagnosis`, `Family diagnoses`, `Previous Medications`) VALUES (?, ?, ?, ?, ?)";
+        String insertSql = "INSERT INTO 'phistory' (`Patient ID`, `Last Name First Initial`, `Diagnosis`, `Family diagnoses`, `Previous Medications`, 'Admitted', 'Discharged', 'Physician Assistant', 'Procedure ID') VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
         
         try (PreparedStatement pstmt = conn.prepareStatement(insertSql)) {
-            pstmt.setString(1, id);      // Value for `Patient` column
+            pstmt.setString(1, Integer.toString(patientId));      // Value for `Patient` column
             pstmt.setString(2, name);
             pstmt.setString(3, diag);
             pstmt.setString(4, fam);
             pstmt.setString(5, meds);
+            pstmt.setString(6, admit);
+            pstmt.setString(7, discharge);
+            pstmt.setString(8, doc);
+            pstmt.setString(9, Integer.toString(procedureId));)
 
             int rows = pstmt.executeUpdate();
             if (rows > 0) {
@@ -145,13 +180,33 @@ public class SampleJDBC {
     }
     
     public static void addNewProcedure(Connection conn, Scanner scanner) throws SQLException {
-    		System.out.println("\n--- Adding New Procedure ---");
+        System.out.println("\n--- Adding New Procedure ---");
+        
+        int procedureId = 0;
+        boolean unique = false;
+        while (!unique) {
+            System.out.print("Enter Procedure ID: ");
+            procedureId = scanner.nextInt();
+            scanner.nextLine(); //Buffer flush
+            
+            String checkProcedureSql = "SELECT `Procedure ID` FROM procedures WHERE `Procedure ID` = ?";
+            try (PreparedStatement checkStmt = conn.prepareStatement(checkProcedureSql)) {
+                checkStmt.setInt(1, procedureId);
+                ResultSet rs = checkStmt.executeQuery();
+                if (rs.next()) {
+                    System.out.println("Procedure ID already exists. Try again.");
+                } else {
+                    unique = true;
+                }
+            }
+        }
     		
     		System.out.print("Procedure Type: ");
-        String id = scanner.nextLine();
+        String type = scanner.nextLine();
         
         System.out.print("Cost: ");
-        String cost = scanner.nextLine();
+        int cost = scanner.nextInt();
+        scanner.nextLine(); //buffer flush 
         
         System.out.print("Procedure Length: ");
         String length = scanner.nextLine();
@@ -162,14 +217,15 @@ public class SampleJDBC {
         System.out.print("Description: ");
         String descript = scanner.nextLine();
         
-        String insertSql = "INSERT INTO procedures (`Procedure type`, `Cost`, `Procedure length`, `Description`) VALUES (?, ?, ?, ?)";
+        String insertSql = "INSERT INTO procedures ('Procedure ID', `Procedure type`, `Cost`, `Procedure length`, 'Recovery time', `Description`) VALUES (?, ?, ?, ?, ?, ?)";
         
         try (PreparedStatement pstmt = conn.prepareStatement(insertSql)) {
-            pstmt.setString(1, id);      // Value for `Patient` column
-            pstmt.setString(2, cost);
-            pstmt.setString(3, length);
-            pstmt.setString(4, recovery);
-            pstmt.setString(5, descript);
+        	    pstmt.setString(1, Integer.toString(procedureId));
+            pstmt.setString(2, type); 
+            pstmt.setString(3, Integer.toString(cost));
+            pstmt.setString(4, length);
+            pstmt.setString(5, recovery);
+            pstmt.setString(6, descript);
 
             int rows = pstmt.executeUpdate();
             if (rows > 0) {
@@ -181,9 +237,26 @@ public class SampleJDBC {
     public static void addNewPatient(Connection conn, Scanner scanner) throws SQLException {
         System.out.println("\n--- Adding New Patient ---");
         
-        System.out.print("Patient ID: ");
-        String id = scanner.nextLine();
-        
+        int patientId = 0;
+        boolean validID = false;
+        while (!validID) {
+            System.out.print("Enter Patient ID: ");
+            patientId = scanner.nextInt();
+            scanner.nextLine(); //buffer flush 
+            
+            String checkPatientSql = "SELECT `Patient ID` FROM patients WHERE `Patient ID` = ?";
+            try (PreparedStatement checkStmt = conn.prepareStatement(checkPatientSql)) {
+                checkStmt.setInt(1, patientId);
+                ResultSet rs = checkStmt.executeQuery();
+                if (rs.next()) {
+                    System.out.println("Error: Patient ID already exists. Try a different one.");
+                } else {
+                    validID = true;
+                    System.out.println("Patient ID available.");
+                }
+            }
+        }
+
         System.out.print("First Name: ");
         String fName = scanner.nextLine();
         
@@ -196,33 +269,34 @@ public class SampleJDBC {
         System.out.print("Sex: ");
         String sex = scanner.nextLine();
         
-        System.out.print("Admitted (YYYY-MM-DD): ");
-        String admit = scanner.nextLine();
+        System.out.print("Height in Inches: ");
+        int h = scanner.nextInt();
+        scanner.nextLine(); //buffer flush 
         
-        System.out.print("Discharged (YYYY-MM-DD): ");
-        String discharge = scanner.nextLine();
+        System.out.print("Blood Type: ");
+        String blood = scanner.nextLine();
         
-        System.out.print("Physician Assistant (J. SMITH): ");
-        String doc = scanner.nextLine();
+        System.out.print("Emergency Contact (Relation to Patient): ");
+        String contact = scanner.nextLine();
         
         System.out.print("Emergency Contact (Phone Number): ");
-        String contact = scanner.nextLine();
+        String phone = scanner.nextLine();
         
         System.out.print("Insurance Provider: ");
         String insurance = scanner.nextLine();
 
-        String sql = "INSERT INTO patients (`Patient ID`, `First Name`, `Last Name`, `DOB`, `Patient Sex`, `Admitted`, `Discharged`, `Physician Assistant`, `Emergency Contact Phone`, `Insurance`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO patients (`Patient ID`, `First Name`, `Last Name`, `DOB`, `Patient Sex`, 'Height', 'Blood Type', 'Emergency Contact', `Emergency Contact Phone`, `Insurance`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, id);
+            pstmt.setString(1, Integer.toString(patientId));
             pstmt.setString(2, fName);
             pstmt.setString(3, lName);
             pstmt.setString(4, dob);
             pstmt.setString(5, sex);
-            pstmt.setString(6, admit);
-            pstmt.setString(7, discharge);
-            pstmt.setString(8, doc);
-            pstmt.setString(9, contact);
+            pstmt.setString(6, Integer.toString(h));
+            pstmt.setString(7, blood);
+            pstmt.setString(8, contact);
+            pstmt.setString(9, phone);
             pstmt.setString(10, insurance);
             
             int rowsInserted = pstmt.executeUpdate();
