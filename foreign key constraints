@@ -1,0 +1,9 @@
+-- foreign key constraints
+alter table patient_history
+ADD CONSTRAINT foreign_procedure  -- foreign key constraints
+FOREIGN KEY (`Procedure_ID`)
+REFERENCES procedures(`Procedure_ID`);
+alter table patient_history
+ADD CONSTRAINT foreign_patient
+FOREIGN KEY (`Patient_ID`)
+REFERENCES patient(`Patient_ID`);
