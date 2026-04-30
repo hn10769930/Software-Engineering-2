@@ -26,13 +26,10 @@ public class SampleJDBC {
                 System.out.println("2. View Procedures"); 
                 System.out.println("3. View Patient Events"); 
                 System.out.println("4. Add New Patient"); 
-                System.out.println("5. Update Patient");
                 System.out.println("6. Delete Patient");
                 System.out.println("7. Add New Procedure");
-                System.out.println("8. Update Procedure");
                 System.out.println("9. Delete Procedure");
                 System.out.println("10. Add Patient Event");
-                System.out.println("11. Update Patient Event");
                 System.out.println("12. Delete Patient Event");
                 System.out.println("13. Exit");
                 System.out.print("Enter choice: ");
@@ -55,17 +52,23 @@ public class SampleJDBC {
                         viewTable(connection, "procedures");
                         break;  
                     case 3: 
-                        viewTable(connection, "phistory");
+                        viewTable(connection, "patient_history");
                         break; 
                     case 4:
                         addNewPatient(connection, scanner);
                         break;
+                    case 6:
+                    		deletePatient(connection, scanner);
                     case 7:
                         addNewProcedure(connection, scanner);
                         break;
+                    case 9:
+                    		deleteProcedure(connection, scanner);
                     case 10:
                         addPatientEvent(connection, scanner);
                         break;
+                    case 12:
+                    		deletePatientEvent(connection, scanner);
                     case 13:
                         System.out.println("Exiting...");
                         return; // Exits the main method
@@ -103,7 +106,7 @@ public class SampleJDBC {
             scanner.nextLine(); //buffer flush 
             
             // Querying the `patients` table for ID existence
-            String checkPatientSql = "SELECT 'Patient ID' FROM patients WHERE 'Patient ID' = ?";
+            String checkPatientSql = "SELECT patient_ID FROM patients WHERE patient_ID = ?";
             try (PreparedStatement checkStmt = conn.prepareStatement(checkPatientSql)) {
                 checkStmt.setString(1, Integer.toString(patientId));
                 ResultSet rs = checkStmt.executeQuery();
@@ -124,7 +127,7 @@ public class SampleJDBC {
             scanner.nextLine(); //buffer flush 
             
             // Querying the `patients` table for ID existence
-            String checkProcedureSql = "SELECT 'Procedure ID' FROM procedures WHERE 'Procedure ID' = ?";
+            String checkProcedureSql = "SELECT procedure_ID FROM procedures WHERE procedure_ID = ?";
             try (PreparedStatement checkStmt = conn.prepareStatement(checkProcedureSql)) {
                 checkStmt.setString(1, Integer.toString(procedureId));
                 ResultSet rs = checkStmt.executeQuery();
@@ -132,7 +135,7 @@ public class SampleJDBC {
                     validID2 = true;
                     System.out.println("Procedure found.");
                 } else {
-                    System.out.println("Error: ID '" + procedureId + "' not found in patients table. Please try again.");
+                    System.out.println("Error: ID '" + procedureId + "' not found in procedures table. Please try again.");
                 }
             }
         }
@@ -159,10 +162,10 @@ public class SampleJDBC {
         System.out.print("Physician Assistant ( DR. J. SMITH): ");
         String doc = scanner.nextLine();
 
-        String insertSql = "INSERT INTO 'phistory' (`Patient ID`, `Last Name First Initial`, `Diagnosis`, `Family diagnoses`, `Previous Medications`, 'Admitted', 'Discharged', 'Physician Assistant', 'Procedure ID') VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);";
+        String insertSql = "INSERT INTO patient_history VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
         
         try (PreparedStatement pstmt = conn.prepareStatement(insertSql)) {
-            pstmt.setString(1, Integer.toString(patientId));      // Value for `Patient` column
+            pstmt.setString(1, Integer.toString(patientId));      
             pstmt.setString(2, name);
             pstmt.setString(3, diag);
             pstmt.setString(4, fam);
@@ -179,6 +182,74 @@ public class SampleJDBC {
         }
     }
     
+    public static void deletePatientEvent(Connection conn, Scanner scanner) throws SQLException {
+    	System.out.println("\n--- Delete a Patient Event ---");
+
+        // Validate Patient ID (Checking 'Patient ID' column in patients table)
+        int patientId = 0;
+        boolean validID = false;
+        while (!validID) {
+            System.out.print("Enter Patient ID: ");
+            patientId = scanner.nextInt();
+            scanner.nextLine(); //buffer flush 
+            
+            // Querying the patients table for ID existence
+            String checkPatientSql = "SELECT patient_ID FROM patients WHERE patient_ID = ?";
+            try (PreparedStatement checkStmt = conn.prepareStatement(checkPatientSql)) {
+                checkStmt.setString(1, Integer.toString(patientId));
+                ResultSet rs = checkStmt.executeQuery();
+                if (rs.next()) {
+                    validID = true;
+                    System.out.println("Patient found.");
+                } else {
+                    System.out.println("Error: ID '" + patientId + "' not found in patients table. Please try again.");
+                }
+            }
+        }
+     // Validate Procedure ID (Checking 'Patient ID' column in patients table)
+        int procedureId = 0;
+        boolean validID2 = false;
+        while (!validID2) {
+            System.out.print("Enter Procedure ID: ");
+            procedureId = scanner.nextInt();
+            scanner.nextLine(); //buffer flush 
+            
+            // Querying the procedures table for ID existence
+            String checkProcedureSql = "SELECT procedure_ID FROM procedures WHERE procedure_ID = ?";
+            try (PreparedStatement checkStmt = conn.prepareStatement(checkProcedureSql)) {
+                checkStmt.setString(1, Integer.toString(procedureId));
+                ResultSet rs = checkStmt.executeQuery();
+                if (rs.next()) {
+                    validID2 = true;
+                    System.out.println("Procedure found.");
+                } else {
+                    System.out.println("Error: ID '" + procedureId + "' not found in procedures table. Please try again.");
+                }
+            }
+        }
+        
+        if (validID && validID2) {
+            String deleteSql = "DELETE FROM patient_history WHERE patient_ID = ? AND procedure_ID = ?";
+            
+            try (PreparedStatement deleteStmt = conn.prepareStatement(deleteSql)) {
+                // Set  parameters from variables
+                deleteStmt.setInt(1, patientId);
+                deleteStmt.setInt(2, procedureId);
+                
+                int rowsDeleted = deleteStmt.executeUpdate();
+                
+                if (rowsDeleted > 0) {
+                    System.out.println("Success: Patient event deleted.");
+                } else {
+                    System.out.println("No matching event found to delete.");
+                }
+            } catch (SQLException e) {
+                System.out.println("Database error: " + e.getMessage());
+            }
+        }
+    	
+    }
+    
     public static void addNewProcedure(Connection conn, Scanner scanner) throws SQLException {
         System.out.println("\n--- Adding New Procedure ---");
         
@@ -189,7 +260,7 @@ public class SampleJDBC {
             procedureId = scanner.nextInt();
             scanner.nextLine(); //Buffer flush
             
-            String checkProcedureSql = "SELECT `Procedure ID` FROM procedures WHERE `Procedure ID` = ?";
+            String checkProcedureSql = "SELECT procedure_ID FROM procedures WHERE procedure_ID = ?";
             try (PreparedStatement checkStmt = conn.prepareStatement(checkProcedureSql)) {
                 checkStmt.setInt(1, procedureId);
                 ResultSet rs = checkStmt.executeQuery();
@@ -217,7 +288,7 @@ public class SampleJDBC {
         System.out.print("Description: ");
         String descript = scanner.nextLine();
         
-        String insertSql = "INSERT INTO procedures ('Procedure ID', `Procedure type`, `Cost`, `Procedure length`, 'Recovery time', `Description`) VALUES (?, ?, ?, ?, ?, ?);";
+        String insertSql = "INSERT INTO procedures VALUES (?, ?, ?, ?, ?, ?)";
         
         try (PreparedStatement pstmt = conn.prepareStatement(insertSql)) {
         	    pstmt.setString(1, Integer.toString(procedureId));
@@ -233,6 +304,51 @@ public class SampleJDBC {
             }
         }
     }
+    
+    public static void deleteProcedure(Connection conn, Scanner scanner) throws SQLException {
+    	System.out.println("\n--- Delete a Procedure ---");
+     // Validate Procedure ID
+        int procedureId = 0;
+        boolean validID2 = false;
+        while (!validID2) {
+            System.out.print("Enter Procedure ID: ");
+            procedureId = scanner.nextInt();
+            scanner.nextLine(); //buffer flush 
+            
+            // Querying the procedures table for ID existence
+            String checkProcedureSql = "SELECT procedure_ID FROM procedures WHERE procedure_ID = ?";
+            try (PreparedStatement checkStmt = conn.prepareStatement(checkProcedureSql)) {
+                checkStmt.setString(1, Integer.toString(procedureId));
+                ResultSet rs = checkStmt.executeQuery();
+                if (rs.next()) {
+                    validID2 = true;
+                    System.out.println("Procedure found.");
+                } else {
+                    System.out.println("Error: ID '" + procedureId + "' not found in procedure table. Please try again.");
+                }
+            }
+        }
+        
+        if (validID2) {
+            String deleteSql = "DELETE FROM procedures WHERE procedure_ID = ?";
+            
+            try (PreparedStatement deleteStmt = conn.prepareStatement(deleteSql)) {
+                // Set parameters from variables
+                deleteStmt.setInt(1, procedureId);
+                
+                int rowsDeleted = deleteStmt.executeUpdate();
+                
+                if (rowsDeleted > 0) {
+                    System.out.println("Success: Procedure deleted.");
+                } else {
+                    System.out.println("No matching procedure found to delete.");
+                }
+            } catch (SQLException e) {
+                System.out.println("Database error: " + e.getMessage());
+            }
+        }
+    	
+    }
 
     public static void addNewPatient(Connection conn, Scanner scanner) throws SQLException {
         System.out.println("\n--- Adding New Patient ---");
@@ -244,7 +360,7 @@ public class SampleJDBC {
             patientId = scanner.nextInt();
             scanner.nextLine(); //buffer flush 
             
-            String checkPatientSql = "SELECT `Patient ID` FROM patients WHERE `Patient ID` = ?";
+            String checkPatientSql = "SELECT patient_ID FROM patients WHERE patient_ID = ?";
             try (PreparedStatement checkStmt = conn.prepareStatement(checkPatientSql)) {
                 checkStmt.setInt(1, patientId);
                 ResultSet rs = checkStmt.executeQuery();
@@ -285,7 +401,7 @@ public class SampleJDBC {
         System.out.print("Insurance Provider: ");
         String insurance = scanner.nextLine();
 
-        String sql = "INSERT INTO patients (`Patient ID`, `First Name`, `Last Name`, `DOB`, `Patient Sex`, 'Height', 'Blood Type', 'Emergency Contact', `Emergency Contact Phone`, `Insurance`) VALUES (?, ?, ?, ?, ?,s ?, ?, ?, ?, ?);";
+        String sql = "INSERT INTO patients VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, Integer.toString(patientId));
@@ -302,6 +418,51 @@ public class SampleJDBC {
             int rowsInserted = pstmt.executeUpdate();
             if (rowsInserted > 0) {
                 System.out.println("A new patient was inserted successfully!");
+            }
+        }
+    }
+    
+    public static void deletePatient(Connection conn, Scanner scanner) throws SQLException {
+    	System.out.println("\n--- Delete a Patient ---");
+
+        // Validate Patient ID 
+        int patientId = 0;
+        boolean validID = false;
+        while (!validID) {
+            System.out.print("Enter Patient ID: ");
+            patientId = scanner.nextInt();
+            scanner.nextLine(); //buffer flush 
+            
+            // Querying the patients table for ID existence
+            String checkPatientSql = "SELECT patient_ID FROM patients WHERE patient_ID = ?";
+            try (PreparedStatement checkStmt = conn.prepareStatement(checkPatientSql)) {
+                checkStmt.setString(1, Integer.toString(patientId));
+                ResultSet rs = checkStmt.executeQuery();
+                if (rs.next()) {
+                    validID = true;
+                    System.out.println("Patient found.");
+                } else {
+                    System.out.println("Error: ID '" + patientId + "' not found in patients table. Please try again.");
+                }
+            }
+        }
+        
+        if (validID) {
+            String deleteSql = "DELETE FROM patients WHERE patient_ID = ?";
+            
+            try (PreparedStatement deleteStmt = conn.prepareStatement(deleteSql)) {
+                // Set parameters from variables
+                deleteStmt.setInt(1, patientId);
+                
+                int rowsDeleted = deleteStmt.executeUpdate();
+                
+                if (rowsDeleted > 0) {
+                    System.out.println("Success: Patient deleted.");
+                } else {
+                    System.out.println("No matching patient found to delete.");
+                }
+            } catch (SQLException e) {
+                System.out.println("Database error: " + e.getMessage());
             }
         }
     }
@@ -362,12 +523,13 @@ public class SampleJDBC {
 	    		System.out.println("Recovery Time: " + entries[3]);
 	    		System.out.println("\n\tDescription: " + entries[4]);
 	    	}
-	    	if (table_name == "phistory") {
+	    	if (table_name == "patient_history") {
 	    		System.out.println("Patient ID: " + entries[0]);
 	    		System.out.println("Name: " + entries[1]);
 	    		System.out.println("Diagnosis: " + entries[2]);
 	    		System.out.println("Family Diagnoses: " + entries[3]);
 	    		System.out.println("Previous Medications: " + entries[4]);
+	    		System.out.println("Procedure ID: " + entries[8]);
 	    	}
 	}
 }

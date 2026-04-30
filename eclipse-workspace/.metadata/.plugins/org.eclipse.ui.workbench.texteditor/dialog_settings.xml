@@ -4,6 +4,10 @@
 	<section name="java.lang.Class">
 		<item key="replaceBarOpen" value="false"/>
 		<list key="findhistory">
+			<item value="_"/>
+			<item value="INSERT INTO"/>
+			<item value="insert into"/>
+			<item value="integer"/>
 			<item value="nextint"/>
 			<item value="buffer"/>
 			<item value="where"/>
